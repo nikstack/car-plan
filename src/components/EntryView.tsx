@@ -34,8 +34,8 @@ function EntryView({entry}: Props) {
                         </Grid>
                     </Grid>
                     <Grid xs={2} item>
-                        <T variant={"body2"} component={"p"}>{entry.getPrioDescription()}</T>
-                        <T variant={"h6"} component={"p"}>{entry.prio}</T>
+                        <T variant={"body2"} component={"p"}>{Entry.priorities[entry.prio]}</T>
+                        <T variant={"h6"} component={"p"}>{entry.prio + 1}</T>
                     </Grid>
                 </Grid>
                 <Divider />
