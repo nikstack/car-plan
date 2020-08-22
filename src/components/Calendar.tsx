@@ -3,14 +3,12 @@ import {DatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import {Box} from "@material-ui/core";
 
-export default function Calendar() {
-    const [selectedDate, setSelectedDate] = useState<Date | null>(
-        new Date(),
-    );
+interface Props {
+    value: Date | null;
+    onChange: (date: Date | null) => void;
+}
 
-    const handleDateChange = (date: Date | null) => {
-        setSelectedDate(date);
-    };
+export default function Calendar({value, onChange}: Props) {
 
     return (
         <Box display={'flex'} justifyContent={'center'}>
@@ -20,8 +18,8 @@ export default function Calendar() {
                     orientation="portrait"
                     variant="static"
                     openTo="date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
+                    value={value}
+                    onChange={onChange}
                 />
             </MuiPickersUtilsProvider>
         </Box>

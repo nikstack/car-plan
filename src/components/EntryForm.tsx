@@ -1,17 +1,16 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    FormControl,
     InputLabel, MenuItem,
     Select, TextField
 } from "@material-ui/core";
 import Entry from "../model/Entry";
 import DateFnsUtils from "@date-io/date-fns";
-import {DatePicker, KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import {KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import MarginBox from "./general/MarginBox";
 import {Field, FieldProps, Form, Formik} from "formik";
 
@@ -22,31 +21,27 @@ interface Props {
     onClose: () => void;
 }
 
-export default function AddEntryForm({
-                                         onSubmit,
-                                         entry = new Entry('', new Date(), new Date(), new Date(),
-                                             0, ''),
-                                         open, onClose
-                                     }: Props) {
-    const [startDate, setStartDate] = useState<Date | null>(new Date());
-    const [endDate, setEndDate] = useState<Date | null>(new Date());
-    const [prio, setPrio] = useState<number>(0);
+export default function EntryForm({
+                                      onSubmit,
+                                      entry = new Entry('', new Date(), new Date(), new Date(),
+                                          0, ''),
+                                      open, onClose
+                                  }: Props) {
 
-    const handleChangePrio = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setPrio(event.target.value as number);
-    };
+    entry.userName = "Niklas";
+    entry.creationDate = new Date();
 
     return (
-        <Formik
-            initialValues={entry}
-            onSubmit={(e, actions) => {
-                onSubmit(e!);
-                actions.setSubmitting(false);
-            }}
-        >
-            {({isSubmitting, errors, setFieldValue}) => (
-                <Form>
-                    <Dialog open={open} onClose={onClose}>
+        <Dialog open={open} onClose={onClose}>
+            <Formik
+                initialValues={entry}
+                onSubmit={(e, actions) => {
+                    onSubmit(e!);
+                    actions.setSubmitting(false);
+                }}
+            >
+                {({isSubmitting, errors, setFieldValue, touched, values}) => (
+                    <Form>
                         <DialogTitle>
                             Eintrag {entry.id ? "bearbeiten" : "erstellen"}
                         </DialogTitle>
@@ -54,20 +49,18 @@ export default function AddEntryForm({
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <MarginBox>
                                     <Field
-                                        id={"start-date"}
-                                        name={"start-date"}
+                                        id={"dateFrom"}
+                                        name={"dateFrom"}
                                     >
                                         {() => (
                                             <KeyboardDateTimePicker
-                                                id="start-date-picker"
                                                 variant="inline"
                                                 format="MM/dd/yyyy HH:mm"
                                                 ampm={false}
-                                                label="Start"
-                                                value={startDate}
+                                                label="From"
+                                                value={values.dateFrom}
                                                 onChange={date => {
-                                                    setStartDate(date);
-                                                    setFieldValue("start-date", date);
+                                                    setFieldValue("dateFrom", date);
                                                 }}
                                                 KeyboardButtonProps={{
                                                     'aria-label': 'change date',
@@ -79,20 +72,18 @@ export default function AddEntryForm({
 
                                 <MarginBox>
                                     <Field
-                                        id={"end-date"}
-                                        name={"end-date"}
+                                        id={"dateTo"}
+                                        name={"dateTo"}
                                     >
                                         {() => (
                                             <KeyboardDateTimePicker
-                                                id="end-date-picker"
                                                 variant="inline"
                                                 format="MM/dd/yyyy HH:mm"
                                                 ampm={false}
-                                                label="Ende"
-                                                value={endDate}
+                                                label="To"
+                                                value={values.dateTo}
                                                 onChange={date => {
-                                                    setEndDate(date);
-                                                    setFieldValue("end-date", date);
+                                                    setFieldValue("dateTo", date);
                                                 }}
                                                 KeyboardButtonProps={{
                                                     'aria-label': 'change date',
@@ -113,10 +104,9 @@ export default function AddEntryForm({
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={prio}
+                                                    value={values.prio}
                                                     onChange={(event: React.ChangeEvent<{ value: unknown }>) => {
                                                         const prio = event.target.value as number;
-                                                        setPrio(prio);
                                                         setFieldValue("prio", prio);
                                                     }}
                                                 >
@@ -128,32 +118,34 @@ export default function AddEntryForm({
                                         )}
                                     </Field>
                                 </MarginBox>
-
-                                <MarginBox>
-                                    <Field
-                                        id={"description"}
-                                        name={"description"}
-                                    >
-                                        {({field}: FieldProps) => (
-                                            <TextField
-                                                {...field}
-                                                label="Beschreibung"
-                                                multiline
-                                                rowsMax={4}
-                                                variant="outlined"
-                                            />
-                                        )}
-                                    </Field>
-                                </MarginBox>
                             </MuiPickersUtilsProvider>
+
+
+                            <MarginBox>
+                                <Field
+                                    id={"description"}
+                                    name={"description"}
+                                >
+                                    {({field}: FieldProps) => (
+                                        <TextField
+                                            {...field}
+                                            label="Beschreibung"
+                                            multiline
+                                            rowsMax={4}
+                                            variant="outlined"
+                                        />
+                                    )}
+                                </Field>
+                            </MarginBox>
                         </DialogContent>
                         <DialogActions>
-                            <Button>OK</Button>
+                            <Button color={"primary"} onClick={onClose}>Abbrechen</Button>
+                            <Button color={"primary"} type={"submit"}>Speichern</Button>
                         </DialogActions>
-                    </Dialog>
-                </Form>
-            )}
+                    </Form>
+                )}
 
-        </Formik>
+            </Formik>
+        </Dialog>
     )
 }

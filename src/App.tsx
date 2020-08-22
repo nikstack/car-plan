@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import AppBarMenuItem from "./components/general/AppBar/AppBarMenuItem";
-import {Add} from "@material-ui/icons";
+import {Add, Today} from "@material-ui/icons";
 import AppBar from "./components/general/AppBar/AppBar";
-import {Box, Container, createMuiTheme, ThemeProvider} from "@material-ui/core";
+import {Container, createMuiTheme, ThemeProvider} from "@material-ui/core";
 import EntryView from "./components/EntryView";
 import Entry from "./model/Entry";
 import Calendar from "./components/Calendar";
-import AddEntryForm from "./components/AddEntryForm";
+import EntryForm from "./components/EntryForm";
 import axios from 'axios';
 
 function App() {
@@ -22,20 +22,60 @@ function App() {
         }
     });
 
-    const menu = [
-        new AppBarMenuItem(<Add/>, "Eintrag erstellen", null, "right")
-    ];
+    const [calendar, setCalendar] = useState<Date | null>(new Date());
+    const [entries, setEntries] = useState<(Entry)[]>([]);
+    const [entryDialog, setEntryDialog] = useState<{ open: boolean, entry?: Entry; }>({open: false});
 
-    const [entries, setEntries] = useState<Entry[]>([]);
+    const saveEntry = async (entry: Entry) => {
+        const data = new FormData();
+        data.append('userName', entry.userName);
+        data.append('creationDate', entry.creationDate.getTime().toString());
+        data.append('dateFrom', entry.dateFrom.getTime().toString());
+        data.append('dateTo', entry.dateTo.getTime().toString());
+        data.append('prio', entry.prio.toString());
+        data.append('description', entry.description);
+
+        const object: any = {};
+        data.forEach((value, key) => {
+            object[key] = value;
+        });
+
+        if (entry.id) {
+            const {data} = await axios.put(`http://localhost:3002/entries/${entry.id}`, object);
+            const updatedEntry = Entry.plainToEntry(data);
+            setEntries(entries => {
+                const index = entries.findIndex(
+                    entry => entry.id === updatedEntry.id
+                );
+                entries[index] = updatedEntry;
+                return [...entries];
+            });
+        } else {
+            const {data} = await axios.post(`http://localhost:3002/entries`, object);
+            const newEntry = Entry.plainToEntry(data);
+            setEntries(entries => ([...entries, newEntry]))
+        }
+    }
+
+    const menu = [
+        new AppBarMenuItem(<Today/>, "Heute",
+            () => {
+                setCalendar(new Date())
+            },
+            "right"),
+
+        new AppBarMenuItem(<Add/>, "Eintrag erstellen",
+            () => {
+                setEntryDialog({open: true, entry: undefined})
+            },
+            "right")
+    ];
 
     useEffect(() => {
         async function fetchData() {
             const {data} = await axios.get<Entry[]>('http://localhost:3002/entries');
-            console.log(data);
             data.forEach((entry: any, index: number) => {
-                data[index].creationDate = new Date(entry.creationDate);
-                data[index].dateFrom = new Date(entry.dateFrom);
-                data[index].dateTo = new Date(entry.dateTo);
+                Entry.plainToEntry(entry);
             });
             setEntries(data as Entry[]);
         }
@@ -47,19 +87,28 @@ function App() {
         <ThemeProvider theme={theme}>
             <AppBar title={"Car Plan"} titleClick={null} menu={menu}/>
             <Container>
-                <Calendar/>
+                <Calendar value={calendar} onChange={setCalendar}/>
                 {entries.map((entry: Entry) => (
-                    <EntryView key={entry.id} entry={entry}/>
+                    <EntryView key={entry.id}
+                               entry={entry}
+                               onClick={() => {
+                                   setEntryDialog(() => ({open: true, entry: entry}))
+                               }}
+                    />
                 ))}
-                <AddEntryForm
-                    entry={entries[0]}
-                    onClose={() => {}}
-                    open={true}
-                    onSubmit={() => {}}
+                <EntryForm
+                    entry={entryDialog.entry}
+                    onClose={() => {
+                        setEntryDialog(() => ({open: false}))
+                    }}
+                    open={entryDialog.open}
+                    onSubmit={(entry: Entry) => {
+                        setEntryDialog(() => ({open: false}));
+                        saveEntry(entry);
+                    }}
                 />
 
             </Container>
-
         </ThemeProvider>
     );
 }
