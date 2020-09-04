@@ -2,8 +2,8 @@ import {Box, withStyles} from "@material-ui/core";
 
 const MarginBox = withStyles({
     root: {
-        marginTop: '8px',
-        marginBottom: '8px'
+        marginTop: '16px',
+        marginBottom: '16px'
     }
 })(Box);
 

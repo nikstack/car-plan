@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
     Button,
     Dialog,
@@ -13,9 +13,10 @@ import DateFnsUtils from "@date-io/date-fns";
 import {KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import MarginBox from "./general/MarginBox";
 import {Field, FieldProps, Form, Formik} from "formik";
+import GP from "../GP";
 
 interface Props {
-    onSubmit: (entry: Entry) => void;
+    onSubmit: (entry: Entry, oldEntry?: Entry) => void;
     entry?: Entry;
     open: boolean;
     onClose: () => void;
@@ -28,7 +29,7 @@ export default function EntryForm({
                                       open, onClose
                                   }: Props) {
 
-    entry.userName = "Niklas";
+    entry.userName = GP.getUser();
     entry.creationDate = new Date();
 
     return (
@@ -36,7 +37,7 @@ export default function EntryForm({
             <Formik
                 initialValues={entry}
                 onSubmit={(e, actions) => {
-                    onSubmit(e!);
+                    onSubmit(e!, entry);
                     actions.setSubmitting(false);
                 }}
             >

@@ -1,6 +1,6 @@
 export default class DateUtils {
     public static formatDate(date: Date): string {
-        const year = new Intl.DateTimeFormat('default', {year: 'numeric'}).format(date)
+        const year = new Intl.DateTimeFormat('default', {year: '2-digit'}).format(date)
         const month = new Intl.DateTimeFormat('default', {month: '2-digit'}).format(date)
         const day = new Intl.DateTimeFormat('default', {day: '2-digit'}).format(date)
 
@@ -17,7 +17,11 @@ export default class DateUtils {
     }
 
     public static getNextDay(timestamp: number): number {
-        return timestamp + 86400;
+        return timestamp + 86400000;
+    }
+
+    public static getDayDatetime(day: Date) {
+        return new Date(day.toDateString());
     }
 
     public static forEachDay(from: Date, to: Date, callback: (day: Date, dayTimestamp: number, index: number) => void) {

@@ -8,6 +8,8 @@ import Entry from "./model/Entry";
 import Calendar from "./components/Calendar";
 import EntryForm from "./components/EntryForm";
 import axios from 'axios';
+import useMappedEntries from "./components/useMappedEntries";
+import GP from "./GP";
 
 function App() {
 
@@ -22,11 +24,11 @@ function App() {
         }
     });
 
-    const [calendar, setCalendar] = useState<Date | null>(new Date());
-    const [entries, setEntries] = useState<(Entry)[]>([]);
+    const {getDayEntries, addMappedEntry, updateMappedEntry} = useMappedEntries();
+    const [calendar, setCalendar] = useState<Date>(new Date());
     const [entryDialog, setEntryDialog] = useState<{ open: boolean, entry?: Entry; }>({open: false});
 
-    const saveEntry = async (entry: Entry) => {
+    const saveEntry = async (entry: Entry, oldEntry?: Entry) => {
         const data = new FormData();
         data.append('userName', entry.userName);
         data.append('creationDate', entry.creationDate.getTime().toString());
@@ -41,26 +43,28 @@ function App() {
         });
 
         if (entry.id) {
-            const {data} = await axios.put(`http://localhost:3002/entries/${entry.id}`, object);
+            if (oldEntry === undefined) {
+                return;
+            }
+            object['id'] = entry.id;
+            const {data} = await axios.put(GP.getBaseServerURL() + `?k=` + GP.getKey(), object);
             const updatedEntry = Entry.plainToEntry(data);
-            setEntries(entries => {
-                const index = entries.findIndex(
-                    entry => entry.id === updatedEntry.id
-                );
-                entries[index] = updatedEntry;
-                return [...entries];
-            });
+            updateMappedEntry(oldEntry, updatedEntry);
         } else {
-            const {data} = await axios.post(`http://localhost:3002/entries`, object);
+            const {data} = await axios.post(GP.getBaseServerURL() + `?k=` + GP.getKey(), object);
             const newEntry = Entry.plainToEntry(data);
-            setEntries(entries => ([...entries, newEntry]))
+            addMappedEntry(newEntry);
         }
+    }
+
+    const handleChangeDate = (date: Date = new Date()) => {
+        setCalendar(new Date(date.getTime()));
     }
 
     const menu = [
         new AppBarMenuItem(<Today/>, "Heute",
             () => {
-                setCalendar(new Date())
+                handleChangeDate();
             },
             "right"),
 
@@ -71,24 +75,17 @@ function App() {
             "right")
     ];
 
-    useEffect(() => {
-        async function fetchData() {
-            const {data} = await axios.get<Entry[]>('http://localhost:3002/entries');
-            data.forEach((entry: any, index: number) => {
-                Entry.plainToEntry(entry);
-            });
-            setEntries(data as Entry[]);
-        }
-
-        fetchData();
-    }, []);
-
     return (
         <ThemeProvider theme={theme}>
             <AppBar title={"Car Plan"} titleClick={null} menu={menu}/>
             <Container>
-                <Calendar value={calendar} onChange={setCalendar}/>
-                {entries.map((entry: Entry) => (
+                <Calendar value={calendar} onChange={(date) => {
+                    if (date === null) {
+                        date = new Date();
+                    }
+                    handleChangeDate(date);
+                }}/>
+                {getDayEntries(calendar).map((entry: Entry) => (
                     <EntryView key={entry.id}
                                entry={entry}
                                onClick={() => {
@@ -102,9 +99,9 @@ function App() {
                         setEntryDialog(() => ({open: false}))
                     }}
                     open={entryDialog.open}
-                    onSubmit={(entry: Entry) => {
+                    onSubmit={(entry: Entry, oldEntry?: Entry) => {
                         setEntryDialog(() => ({open: false}));
-                        saveEntry(entry);
+                        saveEntry(entry, oldEntry);
                     }}
                 />
 

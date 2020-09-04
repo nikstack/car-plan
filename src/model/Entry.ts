@@ -13,10 +13,11 @@ export default class Entry {
     public id?: number
 
     public static plainToEntry(plainEntry: any): Entry {
-        plainEntry.prio = +plainEntry.prio;
-        plainEntry.creationDate = new Date(+plainEntry.creationDate);
-        plainEntry.dateFrom = new Date(+plainEntry.dateFrom);
-        plainEntry.dateTo = new Date(+plainEntry.dateTo);
-        return plainEntry as Entry;
+        const newEntry = {...plainEntry};
+        newEntry.prio = +plainEntry.prio;
+        newEntry.creationDate = new Date(+plainEntry.creationDate);
+        newEntry.dateFrom = new Date(+plainEntry.dateFrom);
+        newEntry.dateTo = new Date(+plainEntry.dateTo);
+        return newEntry as Entry;
     }
 }
