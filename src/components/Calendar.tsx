@@ -1,6 +1,7 @@
 import React from 'react';
 import {DatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
+import {de} from 'date-fns/locale'
 import {Box} from "@material-ui/core";
 import {MaterialUiPickersDate} from "@material-ui/pickers/typings/date";
 import {makeStyles} from "@material-ui/core/styles";
@@ -49,7 +50,7 @@ export default function Calendar({value, onChange, eventDates}: Props) {
 
     return (
         <Box display={'flex'} justifyContent={'center'}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={de}>
                 <DatePicker
                     renderDay={renderDayInPicker}
                     autoOk

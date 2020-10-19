@@ -23,7 +23,7 @@ function EntryView({entry, onClick}: Props) {
                     </T>
                     <T variant={"h6"} component={"p"}>{entry.userName}</T>
                 </Grid>
-                <Grid xs={5} item>
+                <Grid xs={6} item>
                     <Grid container>
                         <Grid xs={5} item>
                             <T variant={"body2"} component={"p"} align={"center"}>{DateUtils.formatDate(entry.dateFrom)}</T>
@@ -39,7 +39,7 @@ function EntryView({entry, onClick}: Props) {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid xs={3} item>
+                <Grid xs={2} item>
                     <T variant={"body2"} component={"p"} align={"center"}>{Entry.priorities[entry.prio]}</T>
                     <T variant={"h6"} component={"p"} align={"center"}>{entry.prio + 1}</T>
                 </Grid>

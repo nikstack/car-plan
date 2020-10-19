@@ -10,6 +10,7 @@ import EntryForm from "./components/EntryForm";
 import axios from 'axios';
 import useMappedEntries from "./components/useMappedEntries";
 import GP from "./GP";
+import 'typeface-nunito';
 
 function App() {
 
@@ -18,8 +19,8 @@ function App() {
         typography: {
             fontFamily: "Nunito, sans-serif",
             body2: {
-                color: "textSecondary",
-                fontSize: '0.7em'
+                // color: "textSecondary",
+                fontSize: '9px'
             }
         }
     });
