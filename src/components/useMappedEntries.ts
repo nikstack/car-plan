@@ -7,6 +7,7 @@ import GP from "../GP";
 type EntryMap = { [key: string]: Entry[] };
 
 export default function useMappedEntries(): {
+    eventDays: string[];
     mappedEntries: EntryMap;
     getDayEntries: (day: Date) => (Entry[]);
     updateMappedEntry: (oldEntry: Entry, newEntry: Entry) => void;
@@ -14,6 +15,7 @@ export default function useMappedEntries(): {
     deleteMappedEntry: (entry: Entry) => void
 } {
 
+    const [eventDays, setEventDays] = useState<string[]>([]);
     const [mappedEntries, setMappedEntries] = useState<EntryMap>({});
 
     useEffect(() => {
@@ -21,6 +23,7 @@ export default function useMappedEntries(): {
             const {data} = await axios.get<Entry[]>(GP.getBaseServerURL() + '?k=' + GP.getKey());
 
             const mapObject: EntryMap = {};
+            const eventDaysBuilder: string[] = [];
 
             data.forEach((entry: Entry) => {
                 const newEntry = Entry.plainToEntry(entry);
@@ -30,10 +33,14 @@ export default function useMappedEntries(): {
                         if (!mapObject.hasOwnProperty(key)) {
                             mapObject[key] = [];
                         }
+                        if (!eventDaysBuilder.includes(DateUtils.formatDate(day))) {
+                            eventDaysBuilder.push(DateUtils.formatDate(day));
+                        }
                         mapObject[key].push(newEntry);
                     })
             });
 
+            setEventDays(eventDaysBuilder);
             setMappedEntries(mapObject);
         }
 
@@ -85,5 +92,5 @@ export default function useMappedEntries(): {
 
     const getMapKey = (timestamp: number) => "t_" + timestamp;
 
-    return {mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry};
+    return {eventDays, mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry};
 }

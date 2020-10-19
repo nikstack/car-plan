@@ -24,7 +24,7 @@ function App() {
         }
     });
 
-    const {getDayEntries, addMappedEntry, updateMappedEntry} = useMappedEntries();
+    const {eventDays, getDayEntries, addMappedEntry, updateMappedEntry} = useMappedEntries();
     const [calendar, setCalendar] = useState<Date>(new Date());
     const [entryDialog, setEntryDialog] = useState<{ open: boolean, entry?: Entry; }>({open: false});
 
@@ -79,7 +79,7 @@ function App() {
         <ThemeProvider theme={theme}>
             <AppBar title={"Car Plan"} titleClick={null} menu={menu}/>
             <Container>
-                <Calendar value={calendar} onChange={(date) => {
+                <Calendar value={calendar} eventDates={eventDays} onChange={(date) => {
                     if (date === null) {
                         date = new Date();
                     }

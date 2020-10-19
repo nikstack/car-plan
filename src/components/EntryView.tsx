@@ -17,7 +17,7 @@ function EntryView({entry, onClick}: Props) {
     const cardContent = (
         <CardContent>
             <Grid container>
-                <Grid xs={5} item>
+                <Grid xs={4} item>
                     <T variant={"body2"} component={"p"}>
                         {DateUtils.formatDate(entry.creationDate)}, {DateUtils.formatTime(entry.creationDate)}
                     </T>
@@ -26,22 +26,22 @@ function EntryView({entry, onClick}: Props) {
                 <Grid xs={5} item>
                     <Grid container>
                         <Grid xs={5} item>
-                            <T variant={"body2"} component={"p"}>{DateUtils.formatDate(entry.dateFrom)}</T>
-                            <T variant={"h6"} component={"p"}>{DateUtils.formatTime(entry.dateFrom)}</T>
+                            <T variant={"body2"} component={"p"} align={"center"}>{DateUtils.formatDate(entry.dateFrom)}</T>
+                            <T variant={"h6"} component={"p"} align={"center"}>{DateUtils.formatTime(entry.dateFrom)}</T>
                         </Grid>
                         <Grid xs={2} item>
-                            <T variant={"body2"} component={"p"}/>
-                            <T variant={"h6"} component={"p"}>-</T>
+                            <T variant={"body2"} component={"p"} align={"center"}>&nbsp;</T>
+                            <T variant={"h6"} component={"p"} align={"center"}>-</T>
                         </Grid>
                         <Grid xs={5} item>
-                            <T variant={"body2"} component={"p"}>{DateUtils.formatDate(entry.dateTo)}</T>
-                            <T variant={"h6"} component={"p"}>{DateUtils.formatTime(entry.dateTo)}</T>
+                            <T variant={"body2"} component={"p"} align={"center"}>{DateUtils.formatDate(entry.dateTo)}</T>
+                            <T variant={"h6"} component={"p"} align={"center"}>{DateUtils.formatTime(entry.dateTo)}</T>
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid xs={2} item>
-                    <T variant={"body2"} component={"p"}>{Entry.priorities[entry.prio]}</T>
-                    <T variant={"h6"} component={"p"}>{entry.prio + 1}</T>
+                <Grid xs={3} item>
+                    <T variant={"body2"} component={"p"} align={"center"}>{Entry.priorities[entry.prio]}</T>
+                    <T variant={"h6"} component={"p"} align={"center"}>{entry.prio + 1}</T>
                 </Grid>
             </Grid>
             <Divider/>
