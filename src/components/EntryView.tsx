@@ -3,7 +3,7 @@ import {CardActionArea, CardContent, Grid, Typography as T} from "@material-ui/c
 import Entry from "../model/Entry";
 import Card from "./general/Card";
 import Divider from "./general/Divider";
-import DateUtils from "./general/DateUtils";
+import DateUtils from "../utils/DateUtils";
 import GP from "../GP";
 
 interface Props {

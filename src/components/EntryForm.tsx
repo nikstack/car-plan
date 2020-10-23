@@ -1,12 +1,13 @@
 import React from 'react';
 import {
+    Box,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
+    DialogTitle, IconButton,
     InputLabel, MenuItem,
-    Select, TextField
+    Select, TextField, Typography as T, useTheme, withStyles
 } from "@material-ui/core";
 import Entry from "../model/Entry";
 import DateFnsUtils from "@date-io/date-fns";
@@ -14,23 +15,35 @@ import {KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pick
 import MarginBox from "./general/MarginBox";
 import {Field, FieldProps, Form, Formik} from "formik";
 import GP from "../GP";
+import {Delete} from "@material-ui/icons";
+import {de} from "date-fns/locale";
 
 interface Props {
     onSubmit: (entry: Entry, oldEntry?: Entry) => void;
+    onDelete: (entry: Entry) => void;
     entry?: Entry;
     open: boolean;
     onClose: () => void;
+    classes: any
 }
 
-export default function EntryForm({
-                                      onSubmit,
-                                      entry = new Entry('', new Date(), new Date(), new Date(),
-                                          0, ''),
-                                      open, onClose
-                                  }: Props) {
+const styles = (theme: any) => ({
+    deleteIcon: {
+        color: theme.palette.error.main
+    }
+})
+
+function EntryForm({
+                       onSubmit,
+                       onDelete,
+                       entry = new Entry('', new Date(), new Date(), new Date(),
+                           0, ''),
+                       open, onClose, classes
+                   }: Props) {
 
     entry.userName = GP.getUser();
     entry.creationDate = new Date();
+    const theme = useTheme();
 
     return (
         <Dialog open={open} onClose={onClose}>
@@ -47,7 +60,7 @@ export default function EntryForm({
                             Eintrag {entry.id ? "bearbeiten" : "erstellen"}
                         </DialogTitle>
                         <DialogContent>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={de}>
                                 <MarginBox>
                                     <Field
                                         id={"dateFrom"}
@@ -56,9 +69,9 @@ export default function EntryForm({
                                         {() => (
                                             <KeyboardDateTimePicker
                                                 variant="inline"
-                                                format="MM/dd/yyyy HH:mm"
+                                                format="dd.MM.yyyy HH:mm"
                                                 ampm={false}
-                                                label="From"
+                                                label={"Von"}
                                                 value={values.dateFrom}
                                                 onChange={date => {
                                                     setFieldValue("dateFrom", date);
@@ -79,9 +92,9 @@ export default function EntryForm({
                                         {() => (
                                             <KeyboardDateTimePicker
                                                 variant="inline"
-                                                format="MM/dd/yyyy HH:mm"
+                                                format="dd.MM.yyyy HH:mm"
                                                 ampm={false}
-                                                label="To"
+                                                label={"Bis"}
                                                 value={values.dateTo}
                                                 onChange={date => {
                                                     setFieldValue("dateTo", date);
@@ -101,9 +114,10 @@ export default function EntryForm({
                                     >
                                         {() => (
                                             <>
-                                                <InputLabel id="demo-simple-select-label">Age</InputLabel>
+                                                <InputLabel id="prio-label"><T
+                                                    variant={"caption"}>Priorität</T></InputLabel>
                                                 <Select
-                                                    labelId="demo-simple-select-label"
+                                                    labelId="prio-label"
                                                     id="demo-simple-select"
                                                     value={values.prio}
                                                     onChange={(event: React.ChangeEvent<{ value: unknown }>) => {
@@ -130,7 +144,7 @@ export default function EntryForm({
                                     {({field}: FieldProps) => (
                                         <TextField
                                             {...field}
-                                            label="Beschreibung"
+                                            label={"Beschreibung"}
                                             multiline
                                             rowsMax={4}
                                             variant="outlined"
@@ -140,8 +154,16 @@ export default function EntryForm({
                             </MarginBox>
                         </DialogContent>
                         <DialogActions>
+                            {entry.id ? (<IconButton onClick={() => {
+                                onClose();
+                                onDelete(entry);
+                            }}>
+                                <Delete className={classes.deleteIcon}/>
+                            </IconButton>) : ''}
+                            <div style={{flex: '1 0 0'}}/>
                             <Button color={"primary"} onClick={onClose}>Abbrechen</Button>
                             <Button color={"primary"} type={"submit"}>Speichern</Button>
+
                         </DialogActions>
                     </Form>
                 )}
@@ -150,3 +172,5 @@ export default function EntryForm({
         </Dialog>
     )
 }
+
+export default withStyles(styles)(EntryForm);

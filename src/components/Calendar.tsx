@@ -5,15 +5,15 @@ import {de} from 'date-fns/locale'
 import {Box} from "@material-ui/core";
 import {MaterialUiPickersDate} from "@material-ui/pickers/typings/date";
 import {makeStyles} from "@material-ui/core/styles";
-import DateUtils from "./general/DateUtils";
+import DateUtils from "../utils/DateUtils";
 
 interface Props {
     value: Date | null;
     onChange: (date: Date | null) => void;
-    eventDates: string[];
+    eventDateKeys: string[];
 }
 
-export default function Calendar({value, onChange, eventDates}: Props) {
+export default function Calendar({value, onChange, eventDateKeys}: Props) {
 
     const useStyles = makeStyles((theme) => ({
         dayWithDotContainer: {
@@ -36,7 +36,7 @@ export default function Calendar({value, onChange, eventDates}: Props) {
 
     const renderDayInPicker = (date: MaterialUiPickersDate, selectedDate: MaterialUiPickersDate, dayInCurrentMonth: boolean, dayComponent: JSX.Element) => {
 
-        if (date && eventDates.includes(DateUtils.formatDate(date))) {
+        if (date && eventDateKeys.includes(DateUtils.timestampToKey(DateUtils.getDayDatetime(date).getTime()))) {
             return (<div className={classes.dayWithDotContainer}>
                 {dayComponent}
                 {dayInCurrentMonth ? (<div className={classes.dayWithDot}/>) : ''}
@@ -45,8 +45,6 @@ export default function Calendar({value, onChange, eventDates}: Props) {
 
         return dayComponent
     }
-
-    console.log(eventDates);
 
     return (
         <Box display={'flex'} justifyContent={'center'}>

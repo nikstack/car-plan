@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import Entry from "../model/Entry";
-import DateUtils from "./general/DateUtils";
+import DateUtils from "../utils/DateUtils";
 import axios from "axios";
 import GP from "../GP";
 
@@ -29,7 +29,7 @@ export default function useMappedEntries(): {
                 const newEntry = Entry.plainToEntry(entry);
                 DateUtils.forEachDay(DateUtils.getDayDatetime(newEntry.dateFrom), DateUtils.getDayDatetime(newEntry.dateTo),
                     (day, dayTimestamp) => {
-                        const key = getMapKey(dayTimestamp);
+                        const key = DateUtils.timestampToKey(dayTimestamp);
                         if (!mapObject.hasOwnProperty(key)) {
                             mapObject[key] = [];
                         }
@@ -55,7 +55,7 @@ export default function useMappedEntries(): {
     const _addMappedEntry = (entry: Entry, mapObject: EntryMap) => {
         DateUtils.forEachDay(DateUtils.getDayDatetime(entry.dateFrom), DateUtils.getDayDatetime(entry.dateTo),
             (day, dayTimestamp) => {
-                const key = getMapKey(dayTimestamp);
+                const key = DateUtils.timestampToKey(dayTimestamp);
                 if (!mapObject.hasOwnProperty(key)) {
                     mapObject[key] = [];
                 }
@@ -71,7 +71,7 @@ export default function useMappedEntries(): {
     const _deleteMappedEntry = (entry: Entry, mapObject: EntryMap) => {
         DateUtils.forEachDay(DateUtils.getDayDatetime(entry.dateFrom), DateUtils.getDayDatetime(entry.dateTo),
             (day, dayTimestamp) => {
-                const key = getMapKey(dayTimestamp);
+                const key = DateUtils.timestampToKey(dayTimestamp);
                 mapObject[key] = mapObject[key].filter((e: Entry) => (e.id !== entry.id));
             });
         return {...mapObject};
@@ -83,14 +83,12 @@ export default function useMappedEntries(): {
     }
 
     const getDayEntries = (day: Date) => {
-        const key = getMapKey(DateUtils.getDayDatetime(day).getTime());
+        const key = DateUtils.timestampToKey(DateUtils.getDayDatetime(day).getTime());
         if (mappedEntries.hasOwnProperty(key)) {
             return mappedEntries[key];
         }
         return [];
     }
-
-    const getMapKey = (timestamp: number) => "t_" + timestamp;
 
     return {eventDays, mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry};
 }

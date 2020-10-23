@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import AppBarMenuItem from "./components/general/AppBar/AppBarMenuItem";
 import {Add, Today} from "@material-ui/icons";
 import AppBar from "./components/general/AppBar/AppBar";
@@ -11,6 +11,7 @@ import axios from 'axios';
 import useMappedEntries from "./components/useMappedEntries";
 import GP from "./GP";
 import 'typeface-nunito';
+import ConfirmDialog from "./components/ConfirmDialog";
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         palette: {},
         typography: {
             fontFamily: "Nunito, sans-serif",
+
             body2: {
                 // color: "textSecondary",
                 fontSize: '9px'
@@ -25,9 +27,15 @@ function App() {
         }
     });
 
-    const {eventDays, getDayEntries, addMappedEntry, updateMappedEntry} = useMappedEntries();
+    const {mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry} = useMappedEntries();
     const [calendar, setCalendar] = useState<Date>(new Date());
     const [entryDialog, setEntryDialog] = useState<{ open: boolean, entry?: Entry; }>({open: false});
+    const [confirmDialog, setConfirmDialog] = useState<{
+        open: boolean,
+        onClose: (confirmed: boolean) => void
+        title: string
+        text: string
+    }>({open: false, onClose: () => {}, title: '', text: ''})
 
     const saveEntry = async (entry: Entry, oldEntry?: Entry) => {
         const data = new FormData();
@@ -58,6 +66,11 @@ function App() {
         }
     }
 
+    const deleteEntry = async (entry: Entry) => {
+        await axios.delete(GP.getBaseServerURL() + `/${entry.id}?k=` + GP.getKey());
+        deleteMappedEntry(entry);
+    }
+
     const handleChangeDate = (date: Date = new Date()) => {
         setCalendar(new Date(date.getTime()));
     }
@@ -80,7 +93,7 @@ function App() {
         <ThemeProvider theme={theme}>
             <AppBar title={"Car Plan"} titleClick={null} menu={menu}/>
             <Container>
-                <Calendar value={calendar} eventDates={eventDays} onChange={(date) => {
+                <Calendar value={calendar} eventDateKeys={Object.keys(mappedEntries)} onChange={(date) => {
                     if (date === null) {
                         date = new Date();
                     }
@@ -104,6 +117,29 @@ function App() {
                         setEntryDialog(() => ({open: false}));
                         saveEntry(entry, oldEntry);
                     }}
+                    onDelete={(entry: Entry) => {
+                        setConfirmDialog(() => ({
+                            open: true,
+                            onClose: (confirmed) => {
+                                if (confirmed) {
+                                    deleteEntry(entry);
+                                    deleteMappedEntry(entry);
+                                }
+                                setConfirmDialog(() => ({
+                                    ...confirmDialog,
+                                    open: false
+                                }))
+                            },
+                            title: "Eintrag Löschen",
+                            text: "Möchtest du den Eintrag wirklich löschen?"
+                        }))
+                    }}
+                />
+                <ConfirmDialog
+                    open={confirmDialog.open}
+                    onClose={confirmDialog.onClose}
+                    title={confirmDialog.title}
+                    text={confirmDialog.text}
                 />
 
             </Container>

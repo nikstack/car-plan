@@ -24,6 +24,11 @@ export default class DateUtils {
         return new Date(day.toDateString());
     }
 
+    public static timestampToKey(timestamp: number) {
+        return "t_" + timestamp
+    };
+
+
     public static forEachDay(from: Date, to: Date, callback: (day: Date, dayTimestamp: number, index: number) => void) {
         let index = 0;
         for (let t = from.getTime(); t <= to.getTime(); t = DateUtils.getNextDay(t)) {
