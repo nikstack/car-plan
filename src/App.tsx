@@ -109,7 +109,7 @@ function App() {
 
     const onOnline = async (callback: () => void) => {
         axios.get(GP.getBaseServerURL() + `?action=ping&k=` + GP.getKey())
-            .then(() => {
+            .then(({data}) => {
                 callback();
             })
             .catch(() => {
@@ -141,10 +141,9 @@ function App() {
             },
             "right")
     ];
-
+    console.log(mappedEntries);
     return (
         <ThemeProvider theme={theme}>
-            <Box bgcolor={theme.palette.primary.main}></Box>
             <AppBar title={""} titleClick={null} menu={menu}/>
             <Calendar value={calendar} eventDateKeys={Object.keys(mappedEntries)} onChange={(date) => {
                 if (date === null) {

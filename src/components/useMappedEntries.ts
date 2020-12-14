@@ -45,8 +45,10 @@ export default function useMappedEntries(): {
 
     useEffect(() => {
         async function fetchData() {
-            await axios.get<Entry[]>(GP.getBaseServerURL() + '?k=' + GP.getKey())
+            console.log("Hier");
+            axios.get<Entry[]>(GP.getBaseServerURL() + '?k=' + GP.getKey())
                 .then(({data}) => {
+                    setIsOnline(true);
                     setData(data);
                 })
                 .catch(() => {
@@ -83,6 +85,7 @@ export default function useMappedEntries(): {
             (day, dayTimestamp) => {
                 const key = DateUtils.timestampToKey(dayTimestamp);
                 mapObject[key] = mapObject[key].filter((e: Entry) => (e.id !== entry.id));
+                delete mapObject[key];
             });
         return {...mapObject};
     }
