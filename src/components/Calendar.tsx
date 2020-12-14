@@ -48,7 +48,7 @@ export default function Calendar({value, onChange, eventDateKeys}: Props) {
     }
 
     return (
-        <Box display={'flex'} justifyContent={'center'}>
+        <Box display={'flex'} justifyContent={'center'} boxSizing={"border-box"}>
             <MuiPickersUtilsProvider utils={DateFnsUtils} locale={de}>
                 <DatePicker
                     renderDay={renderDayInPicker}
@@ -59,7 +59,7 @@ export default function Calendar({value, onChange, eventDateKeys}: Props) {
                     value={value}
                     onChange={onChange}
                     lang={"de"}
-                    fullWidth={true}
+                    fullWidth
                 />
             </MuiPickersUtilsProvider>
         </Box>

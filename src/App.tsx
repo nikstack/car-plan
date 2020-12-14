@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import AppBarMenuItem from "./components/general/AppBar/AppBarMenuItem";
 import {Add, Today} from "@material-ui/icons";
 import AppBar from "./components/general/AppBar/AppBar";
-import {Container, createMuiTheme, ThemeProvider} from "@material-ui/core";
+import {Box, Container, createMuiTheme, ThemeProvider} from "@material-ui/core";
 import EntryView from "./components/EntryView";
 import Entry from "./model/Entry";
 import Calendar from "./components/Calendar";
@@ -35,13 +35,15 @@ function App() {
         onClose: (confirmed: boolean) => void
         title: string
         text: string
+        showCancel: boolean
     }>({
         open: false, onClose: () => {
-        }, title: '', text: ''
+        }, title: '', text: '', showCancel: true
     });
 
     const setDialogInternetError = () => {
         setStdDialog(() => ({
+            showCancel: false,
             open: true,
             onClose: () => {
                 setStdDialog(() => ({
@@ -105,6 +107,23 @@ function App() {
             });
     }
 
+    const onOnline = async (callback: () => void) => {
+        axios.get(GP.getBaseServerURL() + `?action=ping&k=` + GP.getKey())
+            .then(() => {
+                callback();
+            })
+            .catch(() => {
+                setDialogInternetError();
+                setEntryDialog(() => ({open: false}));
+            });
+    }
+
+    const openEntryDialog = (entry?: Entry) => {
+        onOnline(() => {
+            setEntryDialog(() => ({open: true, entry: entry}));
+        });
+    }
+
     const handleChangeDate = (date: Date = new Date()) => {
         setCalendar(new Date(date.getTime()));
     }
@@ -118,34 +137,36 @@ function App() {
 
         new AppBarMenuItem(<Add/>, "Eintrag erstellen",
             () => {
-                setEntryDialog({open: true, entry: undefined})
+                openEntryDialog();
             },
             "right")
     ];
 
     return (
         <ThemeProvider theme={theme}>
-            <AppBar title={"Car Plan"} titleClick={null} menu={menu}/>
+            <Box bgcolor={theme.palette.primary.main}></Box>
+            <AppBar title={""} titleClick={null} menu={menu}/>
+            <Calendar value={calendar} eventDateKeys={Object.keys(mappedEntries)} onChange={(date) => {
+                if (date === null) {
+                    date = new Date();
+                }
+                handleChangeDate(date);
+            }}/>
             <Container>
-                <Calendar value={calendar} eventDateKeys={Object.keys(mappedEntries)} onChange={(date) => {
-                    if (date === null) {
-                        date = new Date();
-                    }
-                    handleChangeDate(date);
-                }}/>
+
 
                 {isOnline ? getDayEntries(calendar).map((entry: Entry) => (
                     <EntryView key={entry.id}
                                entry={entry}
                                onClick={() => {
-                                   setEntryDialog(() => ({open: true, entry: entry}))
+                                   openEntryDialog(entry);
                                }}
                     />
                 )) : ''}
                 <EntryForm
                     entry={entryDialog.entry}
                     onClose={() => {
-                        setEntryDialog(() => ({open: false}))
+                        setEntryDialog(() => ({open: false}));
                     }}
                     open={entryDialog.open}
                     onSubmit={(entry: Entry, oldEntry?: Entry) => {
@@ -154,6 +175,7 @@ function App() {
                     }}
                     onDelete={(entry: Entry) => {
                         setStdDialog(() => ({
+                            showCancel: true,
                             open: true,
                             onClose: (confirmed) => {
                                 if (confirmed) {
@@ -170,6 +192,7 @@ function App() {
                     }}
                 />
                 <StdDialog
+                    showCancel={stdDialog.showCancel}
                     open={stdDialog.open}
                     onClose={stdDialog.onClose}
                     title={stdDialog.title}

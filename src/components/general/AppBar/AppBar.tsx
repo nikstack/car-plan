@@ -31,6 +31,9 @@ const Content = withStyles({
 })(Container);
 
 const styles = (theme: any) => ({
+    appBar: {
+        backgroundColor: '#00000000',
+    },
     title: {
         flexGrow: 1,
         justifyContent: 'flex-start',
@@ -78,7 +81,7 @@ function AppBar({title, titleClick, menu, classes}: Props) {
 
     return (
         <>
-            <MuiAppBar>
+            <MuiAppBar className={classes.appBar} elevation={0} position={"absolute"}>
                 <Content>
                     {left.map((item, index) => (
                         item.onClick == null
@@ -148,7 +151,7 @@ function AppBar({title, titleClick, menu, classes}: Props) {
                     ) : ''}
                 </Content>
             </MuiAppBar>
-            <Toolbar/>
+            {/*<Toolbar/>*/}
             <Menu
                 id={"navigation-menu"}
                 anchorEl={anchorEl}

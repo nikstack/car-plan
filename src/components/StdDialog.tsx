@@ -14,10 +14,10 @@ interface Props {
     onClose: (confirm: boolean) => void,
     title: string,
     text: string,
-    showCancel?: boolean
+    showCancel: boolean
 }
 
-export default function StdDialog({onClose, title, text, open, showCancel = true}: Props) {
+export default function StdDialog({onClose, title, text, open, showCancel}: Props) {
     const confirm = useCallback(() => {
         onClose(true);
     }, [onClose]);
