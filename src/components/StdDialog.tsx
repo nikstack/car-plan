@@ -11,12 +11,13 @@ import Grow from '@material-ui/core/Grow';
 
 interface Props {
     open: boolean,
-    onClose: (confirm: boolean) => void;
+    onClose: (confirm: boolean) => void,
     title: string,
-    text: string
+    text: string,
+    showCancel?: boolean
 }
 
-export default function ConfirmDialog({onClose, title, text, open}: Props) {
+export default function StdDialog({onClose, title, text, open, showCancel = true}: Props) {
     const confirm = useCallback(() => {
         onClose(true);
     }, [onClose]);
@@ -30,7 +31,7 @@ export default function ConfirmDialog({onClose, title, text, open}: Props) {
                 <DialogTitle>{title}</DialogTitle>
                 <DialogContent><DialogContentText>{text}</DialogContentText></DialogContent>
                 <DialogActions>
-                    <Button onClick={decline} color="primary">Abbrechen</Button>
+                    {showCancel ? <Button onClick={decline} color="primary">Abbrechen</Button> : ''}
                     <Button onClick={confirm} color="primary">OK</Button>
                 </DialogActions>
             </Dialog>

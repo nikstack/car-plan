@@ -7,6 +7,7 @@ import GP from "../GP";
 type EntryMap = { [key: string]: Entry[] };
 
 export default function useMappedEntries(): {
+    isOnline: boolean;
     eventDays: string[];
     mappedEntries: EntryMap;
     getDayEntries: (day: Date) => (Entry[]);
@@ -15,33 +16,42 @@ export default function useMappedEntries(): {
     deleteMappedEntry: (entry: Entry) => void
 } {
 
+    const [isOnline, setIsOnline] = useState<boolean>(true);
     const [eventDays, setEventDays] = useState<string[]>([]);
     const [mappedEntries, setMappedEntries] = useState<EntryMap>({});
 
+    const setData = (data: Entry[]) => {
+        const mapObject: EntryMap = {};
+        const eventDaysBuilder: string[] = [];
+
+        data.forEach((entry: Entry) => {
+            const newEntry = Entry.plainToEntry(entry);
+            DateUtils.forEachDay(DateUtils.getDayDatetime(newEntry.dateFrom), DateUtils.getDayDatetime(newEntry.dateTo),
+                (day, dayTimestamp) => {
+                    const key = DateUtils.timestampToKey(dayTimestamp);
+                    if (!mapObject.hasOwnProperty(key)) {
+                        mapObject[key] = [];
+                    }
+                    if (!eventDaysBuilder.includes(DateUtils.formatDate(day))) {
+                        eventDaysBuilder.push(DateUtils.formatDate(day));
+                    }
+                    mapObject[key].push(newEntry);
+                })
+        });
+
+        setEventDays(eventDaysBuilder);
+        setMappedEntries(mapObject);
+    }
+
     useEffect(() => {
         async function fetchData() {
-            const {data} = await axios.get<Entry[]>(GP.getBaseServerURL() + '?k=' + GP.getKey());
-
-            const mapObject: EntryMap = {};
-            const eventDaysBuilder: string[] = [];
-
-            data.forEach((entry: Entry) => {
-                const newEntry = Entry.plainToEntry(entry);
-                DateUtils.forEachDay(DateUtils.getDayDatetime(newEntry.dateFrom), DateUtils.getDayDatetime(newEntry.dateTo),
-                    (day, dayTimestamp) => {
-                        const key = DateUtils.timestampToKey(dayTimestamp);
-                        if (!mapObject.hasOwnProperty(key)) {
-                            mapObject[key] = [];
-                        }
-                        if (!eventDaysBuilder.includes(DateUtils.formatDate(day))) {
-                            eventDaysBuilder.push(DateUtils.formatDate(day));
-                        }
-                        mapObject[key].push(newEntry);
-                    })
-            });
-
-            setEventDays(eventDaysBuilder);
-            setMappedEntries(mapObject);
+            await axios.get<Entry[]>(GP.getBaseServerURL() + '?k=' + GP.getKey())
+                .then(({data}) => {
+                    setData(data);
+                })
+                .catch(() => {
+                    setIsOnline(false);
+                });
         }
 
         // noinspection JSIgnoredPromiseFromCall
@@ -90,5 +100,5 @@ export default function useMappedEntries(): {
         return [];
     }
 
-    return {eventDays, mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry};
+    return {isOnline, eventDays, mappedEntries, getDayEntries, addMappedEntry, updateMappedEntry, deleteMappedEntry};
 }

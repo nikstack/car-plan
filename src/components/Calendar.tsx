@@ -34,7 +34,8 @@ export default function Calendar({value, onChange, eventDateKeys}: Props) {
 
     const classes = useStyles()
 
-    const renderDayInPicker = (date: MaterialUiPickersDate, selectedDate: MaterialUiPickersDate, dayInCurrentMonth: boolean, dayComponent: JSX.Element) => {
+    const renderDayInPicker = (date: MaterialUiPickersDate, selectedDate: MaterialUiPickersDate,
+                               dayInCurrentMonth: boolean, dayComponent: JSX.Element) => {
 
         if (date && eventDateKeys.includes(DateUtils.timestampToKey(DateUtils.getDayDatetime(date).getTime()))) {
             return (<div className={classes.dayWithDotContainer}>
@@ -58,6 +59,7 @@ export default function Calendar({value, onChange, eventDateKeys}: Props) {
                     value={value}
                     onChange={onChange}
                     lang={"de"}
+                    fullWidth={true}
                 />
             </MuiPickersUtilsProvider>
         </Box>
